@@ -38,3 +38,5 @@ seeds:
   cea_aw_johann: # <-- Name of the project. If you renamed your project you have to change this as well
     sap_adventure_works:
       +schema: sap_adw
+    ISO:
+      +schema: iso
