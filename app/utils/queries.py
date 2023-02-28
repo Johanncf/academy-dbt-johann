@@ -32,7 +32,7 @@ def total_negociado_por_dimensao(dimension: str):
     ORDER BY total DESC
     '''
 
-def pedidos_totais_filtrados(produto, tipo_cartao, data, cliente, status, cidade, estado, pais):
+def filtros_metricas_totais(produto, tipo_cartao, data, cliente, status, cidade, estado, pais):
     WHERE_CLAUSE = ''
 
     PRODUTO = ''
@@ -65,6 +65,11 @@ def pedidos_totais_filtrados(produto, tipo_cartao, data, cliente, status, cidade
 
     if CLAUSE:
         WHERE_CLAUSE = f'WHERE {CLAUSE}'
+
+    return WHERE_CLAUSE    
+
+def pedidos_totais_filtrados(produto, tipo_cartao, data, cliente, status, cidade, estado, pais):
+    WHERE_CLAUSE = filtros_metricas_totais(produto, tipo_cartao, data, cliente, status, cidade, estado, pais)
 
     return f'''
         SELECT COUNT(DISTINCT pedido_id) total
@@ -73,78 +78,21 @@ def pedidos_totais_filtrados(produto, tipo_cartao, data, cliente, status, cidade
     '''
 
 def quantidade_total_filtrado(produto, tipo_cartao, data, cliente, status, cidade, estado, pais):
-    WHERE_CLAUSE = ''
-
-    PRODUTO = ''
-    TIPO_CARTAO = ''
-    DATA = ''
-    CLIENTE = ''
-    STATUS = ''
-    CIDADE = ''
-    ESTADO = ''
-    PAIS = ''
-
-    if produto:
-        PRODUTO = f'nome_produto = "{produto}"'
-    if tipo_cartao:
-        TIPO_CARTAO = f'tipo_cartao = "{tipo_cartao}"'
-    if data:
-        DATA = f'data_pedido = "{data}"'
-    if cliente:
-        CLIENTE = f'nome_cliente = "{cliente}"'
-    if status:
-        STATUS = f'status_pedido = "{status}"'
-    if cidade:
-        CIDADE = f'cidade = "{cidade}"'
-    if estado:
-        ESTADO = f'nome_estado = "{estado}"'
-    if pais:
-        PAIS = f'sigla_3 = "{pais}"'
-    
-    CLAUSE = ' AND '.join([item for item in [PRODUTO, TIPO_CARTAO, DATA, CLIENTE, STATUS, CIDADE, ESTADO, PAIS] if item])
-
-    if CLAUSE:
-        WHERE_CLAUSE = f'WHERE {CLAUSE}'
+    WHERE_CLAUSE = filtros_metricas_totais(produto, tipo_cartao, data, cliente, status, cidade, estado, pais)
 
     return f'''
+        WITH transformado as (
+            SELECT DISTINCT detalhe_pedido_id, quantidade
+            FROM `cea-adw-johann.dbt_adventure_works.vendas`
+        )
+
         SELECT SUM(quantidade) total
-        FROM `dbt_adventure_works.vendas`
+        FROM transformado
         {WHERE_CLAUSE}
     '''
 
 def total_negociado_filtrado(produto, tipo_cartao, data, cliente, status, cidade, estado, pais):
-    WHERE_CLAUSE = ''
-
-    PRODUTO = ''
-    TIPO_CARTAO = ''
-    DATA = ''
-    CLIENTE = ''
-    STATUS = ''
-    CIDADE = ''
-    ESTADO = ''
-    PAIS = ''
-
-    if produto:
-        PRODUTO = f'nome_produto = "{produto}"'
-    if tipo_cartao:
-        TIPO_CARTAO = f'tipo_cartao = "{tipo_cartao}"'
-    if data:
-        DATA = f'data_pedido = "{data}"'
-    if cliente:
-        CLIENTE = f'nome_cliente = "{cliente}"'
-    if status:
-        STATUS = f'status_pedido = "{status}"'
-    if cidade:
-        CIDADE = f'cidade = "{cidade}"'
-    if estado:
-        ESTADO = f'nome_estado = "{estado}"'
-    if pais:
-        PAIS = f'sigla_3 = "{pais}"'
-    
-    CLAUSE = ' AND '.join([item for item in [PRODUTO, TIPO_CARTAO, DATA, CLIENTE, STATUS, CIDADE, ESTADO, PAIS] if item])
-
-    if CLAUSE:
-        WHERE_CLAUSE = f'WHERE {CLAUSE}'
+    WHERE_CLAUSE = filtros_metricas_totais(produto, tipo_cartao, data, cliente, status, cidade, estado, pais)
 
     return f'''
     WITH pedidos_unicos as (
@@ -235,15 +183,21 @@ def clientes_vs_lojas_total_negociado_por_dimensao(produto, tipo_cartao, motivo_
     WHERE_CLAUSE = filtros_melhores_clientes(produto, tipo_cartao, motivo_venda, data, cidade, nome_estado, pais)
     
     return f'''
-    WITH pedidos_unicos as (
-        SELECT DISTINCT pedido_id, total_pedido, nome_loja
+    WITH transformado as (
+        SELECT 
+            DISTINCT pedido_id
+            , CASE 
+                WHEN nome_loja != 'pessoa_fisica' THEN 'loja'
+                ELSE nome_loja
+            END as cliente
+            , total_pedido
         FROM `cea-adw-johann.dbt_adventure_works.vendas`
         {WHERE_CLAUSE}
     )
 
-    SELECT ROUND(SUM(total_pedido)) total, nome_loja
-    FROM pedidos_unicos
-    GROUP BY nome_loja
+    SELECT SUM(total_pedido) total, cliente
+    FROM transformado
+    GROUP BY cliente
     '''
 
 def melhores_clientes_total_negociado_por_dimensao(produto, tipo_cartao, motivo_venda, data, cidade, nome_estado, pais):
@@ -320,7 +274,7 @@ def dimensoes_categorias():
     )['tipo_cartao'].to_list()
 
     data_pedido = optionsDataService.get_data(
-        'SELECT DISTINCT data_pedido FROM `dbt_adventure_works.vendas`'
+        'SELECT DISTINCT data_pedido FROM `dbt_adventure_works.vendas` ORDER BY data_pedido DESC'
     )['data_pedido'].to_list()
 
     nome_cliente = optionsDataService.get_data(

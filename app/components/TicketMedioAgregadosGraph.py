@@ -32,23 +32,23 @@ def TicketMedioAgregadosGraph():
         dcc.Graph(id='ticket_medio_agregados'),
         html.Div([
             html.Div(
-                Dropdown('ticket_ano', [{'name': item, 'value': item} for item in ano_options]),
+                Dropdown('ticket_ano', [{'name': item, 'value': item} for item in ano_options], placeholder='Ano'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('ticket_mes', [{'name': item, 'value': item} for item in mes_options]),
+                Dropdown('ticket_mes', [{'name': item, 'value': item} for item in mes_options], placeholder='Mês'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('ticket_cidade', [{'name': item, 'value': item} for item in cidade_options]),
+                Dropdown('ticket_cidade', [{'name': item, 'value': item} for item in cidade_options], placeholder='Cidade'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('ticket_estado', [{'name': item, 'value': item} for item in estado_options]),
+                Dropdown('ticket_estado', [{'name': item, 'value': item} for item in estado_options], placeholder='Estado'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('ticket_pais', [{'name': item, 'value': item} for item in pais_options]),
+                Dropdown('ticket_pais', [{'name': item, 'value': item} for item in pais_options], placeholder='País'),
                 style={'width': '100%'}
             )
         ], 
