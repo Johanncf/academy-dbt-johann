@@ -1,9 +1,12 @@
-from dash import Dash, Input, Output, dcc, html, dash_table
-import webbrowser
-from threading import Timer
-from Services.DatavisService import DatavisService
+from dash import Dash, html
+from services import DatavisService
+from utils import quantidade_comprada_por_pais, total_pedido_por_pais, count_query_pais
+from components import PedidosAgregadosGraph, QuantidadeCompradaAgregadosGraph, \
+                        TotalNegociadoAgregadosGraph, MapaMundiMetricasGraph, PedidosTemporalGraph, \
+                        TicketMedioAgregadosGraph, MetricasTotaisFiltrados, MelhoresClientesGraph
 
-app = Dash('monitoring-analysis')
+
+app = Dash('cea-aw-johann')
 
 colors = {
     'dark-bg-0': '#000000',
@@ -13,37 +16,97 @@ colors = {
 
 datavisService = DatavisService()
 
+DIMENSOES_1 = [
+    {
+        'name': 'produto',
+        'value': 'nome_produto'
+    },
+    {
+        'name': 'cliente',
+        'value': 'nome_cliente'
+    },
+    {
+        'name': 'tipo do cartão',
+        'value': 'tipo_cartao'
+    },
+    {
+        'name': 'motivador da compra',
+        'value': 'motivo_venda'
+    },
+    {
+        'name': 'status do pedido',
+        'value': 'status_pedido'
+    },
+    {
+        'name': 'cidade',
+        'value': 'cidade'
+    },
+    {
+        'name': 'estado',
+        'value': 'nome_estado'
+    }
+]
+
 def updated_layout():
-    layout = html.Div(
-                children=[
-                    # dcc.Store(id='storage'),
-                    html.H1(children='ACADEMY DBT JOHANN'),
-                    html.Div(children=[
-                            html.P(
-                            f"Pedidos por produto",
-                            style={'textAlign': 'left', 'fontSize': 'larger', 'fontWeight': 'bold'}),
-                            dcc.Graph(
-                                id='all-distributors-unknown-errors-count',
-                                #figure=datavisService.make_graph(datavisService.data, 'Distribuidora', 'Contagem de Erros Desconhecidos', colors)
-                            )
-                        ],
-                        style={'marginTop': '100px'}
-                    )
-                ],
-                style={
-                    'background-color': colors['dark-bg'], 
-                    'color': colors['dark-bg-txt'], 
-                    'textAlign': 'center',
-                    'padding': '4%',
-                    'height': '100%'
-                })
+    layout = html.Div(children=[
+        html.H1(children='ACADEMY DBT JOHANN'),
+        html.Div([
+            html.Div(children=[
+                MetricasTotaisFiltrados()
+            ],
+            style={'display': 'flex'}),
+            
+            html.Div([
+                TicketMedioAgregadosGraph()
+            ],
+            style={'display': 'flex'}),
+
+            html.Div([
+                MelhoresClientesGraph()
+            ],
+            style={'display': 'flex'}),
+            
+            html.Div(children=[
+                PedidosAgregadosGraph(DIMENSOES_1),
+                MapaMundiMetricasGraph('Número de pedidos por país', count_query_pais())
+            ],
+            style={'display': 'flex'}),
+
+            html.Div([
+                QuantidadeCompradaAgregadosGraph(DIMENSOES_1),
+                MapaMundiMetricasGraph('Quantidade comprada por país', quantidade_comprada_por_pais())
+
+            ],
+            style={'display': 'flex'}),
+
+            html.Div([
+                TotalNegociadoAgregadosGraph(DIMENSOES_1),
+                MapaMundiMetricasGraph('Total negociado por país', total_pedido_por_pais()),
+            ],
+            style={'display': 'flex'}),
+
+            html.Div([
+                PedidosTemporalGraph()
+            ],
+            style={'display': 'flex'})
+        ],
+        style={
+            'display': 'flex',
+            'flex-direction': 'column',
+            'gap': '5%',
+            'width': '100%'
+        })
+    ],
+    style={
+        'background-color': colors['dark-bg'], 
+        'color': colors['dark-bg-txt'], 
+        'textAlign': 'center',
+        'padding': '4%',
+        'height': '100%'
+    })
     return layout
 
 app.layout = updated_layout
 
-def open_browser():
-    webbrowser.open_new("http://localhost:8050")
-
 if __name__ == '__main__':
-    Timer(1, open_browser())
-    app.run_server(debug=True)
+    app.run_server()
