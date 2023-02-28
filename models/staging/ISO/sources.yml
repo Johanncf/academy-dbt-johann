@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: iso
+    description: Tabela de "de-para" dos códigos de países do padrão "ISO 3166-1 alpha-2 codes" para "ISO 3166-1 alpha 3 codes".
+    schema: iso
+    tables:
+      - name: countrycode
+        description: Cada linha possui as infos para os dois padrões de sigla.
+        columns:
+          - name: countrylet
+            description: Nome do país.
+            tests:
+              - unique
+              - not_null
+
+          - name: _2let
+            description: Codigo de duas letras.
+            tests:
+              - unique
+              - not_null
+
+          - name: _3let
+            description: Codigo de tres letras.
+            tests:
+              - unique
+              - not_null
