@@ -16,7 +16,7 @@ with
 
     iso as (
         select *
-        from {{ ref('stg_iso__country_code') }}
+        from {{ ref('stg_iso__codigo_paises') }}
     ),
 
     joined as (
