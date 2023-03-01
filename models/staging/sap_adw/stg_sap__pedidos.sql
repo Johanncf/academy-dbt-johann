@@ -5,6 +5,7 @@ with
             , cast(cast(orderdate as datetime) as date) as data_pedido
             , cast(status as int) as status_pedido
             , cast(customerid as int) as cliente_id
+            , cast(shiptoaddressid as int) as endereco_entrega_id
             , cast(creditcardid as int) as cartao_id
             , cast(territoryid as int) as regiao_id
             , cast(subtotal as numeric) as total_pedido
@@ -21,6 +22,7 @@ with
             , extract(day from data_pedido) as dia_pedido
             , source_pedidos.status_pedido
             , source_pedidos.cliente_id
+            , source_pedidos.endereco_entrega_id
             , source_pedidos.cartao_id
             , source_pedidos.regiao_id
             , source_pedidos.total_pedido

@@ -5,6 +5,7 @@ with
             , cast(salesorderdetailid as int) as detalhe_pedido_id
             , cast(productid as int) as produto_id
             , cast(unitprice as numeric) as preco_unitario
+            , cast(unitpricediscount as numeric) as desconto_unitario
             , cast(orderqty as int) as quantidade
         from 
             {{ source('sap_adw', 'salesorderdetail') }}

@@ -1,0 +1,5 @@
+runtime: python39
+entrypoint: python app.py
+handlers:
+  - url: /.*
+    script: auto

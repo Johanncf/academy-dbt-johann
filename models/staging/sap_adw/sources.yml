@@ -129,6 +129,21 @@ sources:
               - accepted_values:
                   values: ["Other", "Marketing", "Promotion"]
 
+      - name: salesterritory
+        description: Uma linha por região. A região pode ser um país todo, ou uma área de um país.
+        columns:
+          - name: territoryid
+            description: Chave primária da tabela.
+            tests:
+              - unique
+              - not_null
+
+          - name: name
+            description: Nome da região.
+
+          - name: group
+            description: Parte do planeta em que a região se localiza.
+
       - name: customer
         description: Uma linha por cliente.
         columns:
