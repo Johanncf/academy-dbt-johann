@@ -31,8 +31,12 @@ clean-targets: # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   cea_aw_johann: # <-- Name of the project. If you renamed your project you have to change this as well
-    # Applies to all files under models/example/
-    +materialized: table
+    stagin:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table
 
 seeds:
   cea_aw_johann: # <-- Name of the project. If you renamed your project you have to change this as well
