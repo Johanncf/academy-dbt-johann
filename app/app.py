@@ -89,4 +89,4 @@ def updated_layout():
 app.layout = updated_layout
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
