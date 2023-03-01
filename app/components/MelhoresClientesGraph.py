@@ -1,57 +1,48 @@
 from dash import dcc, html, callback, Input, Output
 from .Dropdown import Dropdown
-from .MetricasCard import MetricasCard
 from services import DatavisService
 from utils import melhores_clientes_total_negociado_por_dimensao, clientes_vs_lojas_total_negociado_por_dimensao, \
     melhores_lojas_total_negociado_por_dimensao, dimensoes_categorias, colors
-import pandas as pd
 
-def MelhoresClientesGraph():
-    nome_produto, \
-    tipo_cartao, \
-    data_pedido, \
-    nome_cliente, \
-    status_pedido, \
-    cidade, \
-    nome_estado, \
-    sigla_3, \
-    motivo_venda = dimensoes_categorias()
-
-
+def MelhoresClientesGraph(dimensoes: dict):
     return html.Div(children=[
         html.Div([
-            dcc.Graph(id='pessoa_fisica_vs_lojas', style={'width': '25%'}),
-            dcc.Graph(id='melhores_clientes'),
-            dcc.Graph(id='melhores_lojas')
+            html.Div([
+                dcc.Graph(id='pessoa_fisica_vs_lojas'),
+            ], style={'width': '25%'}),
+            html.Div([
+                dcc.Graph(id='melhores_clientes', style={'width': '50%'}),
+                dcc.Graph(id='melhores_lojas', style={'width': '50%'})
+            ], style={'display': 'flex', 'width': '75%'})
         ], 
-        style={'display': 'flex'}),
+        style={'display': 'flex', 'width': '100%'}),
         html.Div([
             html.Div(
-                Dropdown('melhores_clientes_produto', [{'name': item, 'value': item} for item in nome_produto], placeholder='Produto'),
+                Dropdown('melhores_clientes_produto', [{'name': item, 'value': item} for item in dimensoes['nome_produto']], placeholder='Produto'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('melhores_clientes_cartao', [{'name': item, 'value': item} for item in tipo_cartao], placeholder='Tipo de Cartão'),
+                Dropdown('melhores_clientes_cartao', [{'name': item, 'value': item} for item in dimensoes['tipo_cartao']], placeholder='Tipo de Cartão'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('melhores_clientes_data_pedido', [{'name': item, 'value': item} for item in data_pedido], placeholder='Data do Pedido'),
+                Dropdown('melhores_clientes_data_pedido', [{'name': item, 'value': item} for item in dimensoes['data_pedido']], placeholder='Data do Pedido'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('melhores_clientes_motivo_venda', [{'name': item, 'value': item} for item in motivo_venda], placeholder='Motivo da Venda'),
+                Dropdown('melhores_clientes_motivo_venda', [{'name': item, 'value': item} for item in dimensoes['motivo_venda']], placeholder='Motivo da Venda'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('melhores_clientes_cidade', [{'name': item, 'value': item} for item in cidade], placeholder='Cidade'),
+                Dropdown('melhores_clientes_cidade', [{'name': item, 'value': item} for item in dimensoes['cidade']], placeholder='Cidade'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('melhores_clientes_nome_estado', [{'name': item, 'value': item} for item in nome_estado], placeholder='Estado'),
+                Dropdown('melhores_clientes_nome_estado', [{'name': item, 'value': item} for item in dimensoes['nome_estado']], placeholder='Estado'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('melhores_clientes_sigla_3', [{'name': item, 'value': item} for item in sigla_3], placeholder='País'),
+                Dropdown('melhores_clientes_sigla_3', [{'name': item, 'value': item} for item in dimensoes['sigla_3']], placeholder='País'),
                 style={'width': '100%'}
             )
         ], 

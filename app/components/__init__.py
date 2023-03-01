@@ -2,7 +2,10 @@ from .PedidosAgregadosGraph import PedidosAgregadosGraph
 from .QuantidadeCompradaAgregadosGraph import QuantidadeCompradaAgregadosGraph
 from .TotalNegociadoAgregadosGraph import TotalNegociadoAgregadosGraph
 from .MapaMundiMetricasGraph import MapaMundiMetricasGraph
-from .PedidosTemporalGraph import PedidosTemporalGraph
 from .TicketMedioAgregadosGraph import TicketMedioAgregadosGraph
 from .MetricasTotaisFiltrados import MetricasTotaisFiltrados
 from .MelhoresClientesGraph import MelhoresClientesGraph
+from .PedidosTemporalGraph import PedidosTemporalGraph
+from .QuantidadeTemporalGraph import QuantidadeTemporalGraph
+from .TotalNegociadoTemporalGraph import TotalNegociadoTemporalGraph
+from .ProdutosVendidosEmPromo import ProdutosVendidosEmPromo

@@ -1,58 +1,23 @@
 from dash import Dash, html
-from services import DatavisService
-from utils import quantidade_comprada_por_pais, total_pedido_por_pais, count_query_pais
+from utils import quantidade_comprada_por_pais, total_pedido_por_pais, \
+                    count_query_pais, dimensoes_categorias, colors, DIMENSOES
+
 from components import PedidosAgregadosGraph, QuantidadeCompradaAgregadosGraph, \
                         TotalNegociadoAgregadosGraph, MapaMundiMetricasGraph, PedidosTemporalGraph, \
-                        TicketMedioAgregadosGraph, MetricasTotaisFiltrados, MelhoresClientesGraph
+                        TicketMedioAgregadosGraph, MetricasTotaisFiltrados, MelhoresClientesGraph, \
+                        ProdutosVendidosEmPromo, QuantidadeTemporalGraph, TotalNegociadoTemporalGraph
 
 
 app = Dash('cea-aw-johann')
 
-colors = {
-    'dark-bg-0': '#000000',
-    'dark-bg': '#222222',
-    'dark-bg-txt': '#DCDCDC'
-}
-
-datavisService = DatavisService()
-
-DIMENSOES_1 = [
-    {
-        'name': 'produto',
-        'value': 'nome_produto'
-    },
-    {
-        'name': 'cliente',
-        'value': 'nome_cliente'
-    },
-    {
-        'name': 'tipo do cartão',
-        'value': 'tipo_cartao'
-    },
-    {
-        'name': 'motivador da compra',
-        'value': 'motivo_venda'
-    },
-    {
-        'name': 'status do pedido',
-        'value': 'status_pedido'
-    },
-    {
-        'name': 'cidade',
-        'value': 'cidade'
-    },
-    {
-        'name': 'estado',
-        'value': 'nome_estado'
-    }
-]
+dimensoes_dict = dimensoes_categorias()
 
 def updated_layout():
     layout = html.Div(children=[
-        html.H1(children='ACADEMY DBT JOHANN'),
+        html.H1(children='ACADEMY  DBT  JOHANN', style={'color': colors['dark-bg-txt']}),
         html.Div([
             html.Div(children=[
-                MetricasTotaisFiltrados()
+                MetricasTotaisFiltrados(dimensoes_dict)
             ],
             style={'display': 'flex'}),
             
@@ -62,31 +27,46 @@ def updated_layout():
             style={'display': 'flex'}),
 
             html.Div([
-                MelhoresClientesGraph()
+                MelhoresClientesGraph(dimensoes_dict)
             ],
             style={'display': 'flex'}),
             
             html.Div(children=[
-                PedidosAgregadosGraph(DIMENSOES_1),
+                PedidosAgregadosGraph(DIMENSOES),
                 MapaMundiMetricasGraph('Número de pedidos por país', count_query_pais())
             ],
             style={'display': 'flex'}),
 
             html.Div([
-                QuantidadeCompradaAgregadosGraph(DIMENSOES_1),
+                QuantidadeCompradaAgregadosGraph(DIMENSOES),
                 MapaMundiMetricasGraph('Quantidade comprada por país', quantidade_comprada_por_pais())
 
             ],
             style={'display': 'flex'}),
 
             html.Div([
-                TotalNegociadoAgregadosGraph(DIMENSOES_1),
+                TotalNegociadoAgregadosGraph(DIMENSOES),
                 MapaMundiMetricasGraph('Total negociado por país', total_pedido_por_pais()),
             ],
             style={'display': 'flex'}),
 
             html.Div([
                 PedidosTemporalGraph()
+            ],
+            style={'display': 'flex'}),
+            
+            html.Div([
+                QuantidadeTemporalGraph()
+            ],
+            style={'display': 'flex'}),
+            
+            html.Div([
+                TotalNegociadoTemporalGraph()
+            ],
+            style={'display': 'flex'}),
+            
+            html.Div([
+                ProdutosVendidosEmPromo()
             ],
             style={'display': 'flex'})
         ],
@@ -109,4 +89,4 @@ def updated_layout():
 app.layout = updated_layout
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)

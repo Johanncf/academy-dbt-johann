@@ -1,4 +1,5 @@
 from services import DatavisService
+from concurrent.futures import ThreadPoolExecutor
 
 def numero_pedidos_por_dimensao(dimension: str):
     return f'''
@@ -16,10 +17,37 @@ def quantidade_comprada_por_dimensao(dimension: str):
     ORDER BY total DESC
     '''
 
+def numero_pedidos_serie_temporal():
+    return f'''
+        SELECT COUNT(DISTINCT pedido_id) total, (mes_pedido || '/' || ano_pedido) as data
+        FROM `dbt_adventure_works.vendas`
+        GROUP BY ano_pedido, mes_pedido
+        ORDER BY ano_pedido, mes_pedido
+    '''
 def quantidade_comprada_serie_temporal():
     return f'''
+        WITH pedidos_unicos as (
+            SELECT DISTINCT detalhe_pedido_id, quantidade, mes_pedido, ano_pedido
+            FROM `dbt_adventure_works.vendas`
+        )
+
         SELECT SUM(quantidade) total, (mes_pedido || '/' || ano_pedido) as data
-        FROM `dbt_adventure_works.vendas`
+        FROM pedidos_unicos
+        GROUP BY ano_pedido, mes_pedido
+        ORDER BY ano_pedido, mes_pedido
+    '''
+def total_negociado_serie_temporal():
+    return f'''
+        WITH pedidos_unicos as (
+            SELECT DISTINCT 
+                detalhe_pedido_id, 
+                total_pedido,
+                mes_pedido, 
+                ano_pedido
+            FROM `dbt_adventure_works.vendas`
+        )
+        SELECT SUM(total_pedido) total, (mes_pedido || '/' || ano_pedido) as data
+        FROM pedidos_unicos
         GROUP BY ano_pedido, mes_pedido
         ORDER BY ano_pedido, mes_pedido
     '''
@@ -84,11 +112,11 @@ def quantidade_total_filtrado(produto, tipo_cartao, data, cliente, status, cidad
         WITH transformado as (
             SELECT DISTINCT detalhe_pedido_id, quantidade
             FROM `cea-adw-johann.dbt_adventure_works.vendas`
+            {WHERE_CLAUSE}
         )
 
         SELECT SUM(quantidade) total
         FROM transformado
-        {WHERE_CLAUSE}
     '''
 
 def total_negociado_filtrado(produto, tipo_cartao, data, cliente, status, cidade, estado, pais):
@@ -214,6 +242,7 @@ def melhores_clientes_total_negociado_por_dimensao(produto, tipo_cartao, motivo_
     FROM pedidos_unicos
     WHERE nome_loja = 'pessoa_fisica'
     GROUP BY nome_cliente
+    ORDER BY total DESC
     '''
 
 def melhores_lojas_total_negociado_por_dimensao(produto, tipo_cartao, motivo_venda, data, cidade, nome_estado, pais):
@@ -230,6 +259,7 @@ def melhores_lojas_total_negociado_por_dimensao(produto, tipo_cartao, motivo_ven
     FROM pedidos_unicos
     WHERE nome_loja != 'pessoa_fisica'
     GROUP BY nome_loja
+    ORDER BY total DESC
     '''
 
 def count_query_pais():
@@ -261,47 +291,51 @@ def total_pedido_por_pais():
     ORDER BY total DESC
     ''' 
 
+def produto_mais_vendido_por_promotion():
+    return '''
+    WITH pedidos_unicos as (
+        SELECT DISTINCT detalhe_pedido_id, nome_produto, quantidade
+        FROM `cea-adw-johann.dbt_adventure_works.vendas`
+        WHERE motivo_venda = 'On Promotion'
+    )
+
+    SELECT nome_produto, SUM(quantidade) total
+    FROM pedidos_unicos
+    GROUP BY nome_produto
+    ORDER BY total DESC
+    '''
 
 def dimensoes_categorias():
     optionsDataService = DatavisService()
-
-    nome_produto = optionsDataService.get_data(
-        'SELECT DISTINCT nome_produto FROM `dbt_adventure_works.vendas`'
-    )['nome_produto'].to_list()
-
-    tipo_cartao = optionsDataService.get_data(
-        'SELECT DISTINCT tipo_cartao FROM `dbt_adventure_works.vendas`'
-    )['tipo_cartao'].to_list()
-
-    data_pedido = optionsDataService.get_data(
-        'SELECT DISTINCT data_pedido FROM `dbt_adventure_works.vendas` ORDER BY data_pedido DESC'
-    )['data_pedido'].to_list()
-
-    nome_cliente = optionsDataService.get_data(
-        'SELECT DISTINCT nome_cliente FROM `dbt_adventure_works.vendas`'
-    )['nome_cliente'].to_list()
-
-    status_pedido = optionsDataService.get_data(
-        'SELECT DISTINCT status_pedido FROM `dbt_adventure_works.vendas`'
-    )['status_pedido'].to_list()
     
-    cidade = optionsDataService.get_data(
-        'SELECT DISTINCT cidade FROM `dbt_adventure_works.vendas`'
-    )['cidade'].to_list()
-    
-    nome_estado = optionsDataService.get_data(
-        'SELECT DISTINCT nome_estado FROM `dbt_adventure_works.vendas`'
-    )['nome_estado'].to_list()
+    queries = [
+        'SELECT DISTINCT nome_produto FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT tipo_cartao FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT data_pedido FROM `dbt_adventure_works.vendas` ORDER BY data_pedido DESC',
+        'SELECT DISTINCT nome_cliente FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT status_pedido FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT cidade FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT nome_estado FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT sigla_3 FROM `dbt_adventure_works.vendas`',
+        'SELECT DISTINCT motivo_venda FROM `dbt_adventure_works.vendas`'
+    ]
 
-    sigla_3 = optionsDataService.get_data(
-        'SELECT DISTINCT sigla_3 FROM `dbt_adventure_works.vendas`'
-    )['sigla_3'].to_list()
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(optionsDataService.get_data, queries)
 
-    motivo_venda = optionsDataService.get_data(
-    'SELECT DISTINCT motivo_venda FROM `dbt_adventure_works.vendas`'
-    )['motivo_venda'].to_list()
+    results = list(results)
 
-    return [nome_produto, tipo_cartao, data_pedido, nome_cliente, status_pedido, cidade, nome_estado, sigla_3, motivo_venda]
+    return {
+        'nome_produto': results[0]['nome_produto'].to_list(),
+        'tipo_cartao': results[1]['tipo_cartao'].to_list(),
+        'data_pedido':  results[2]['data_pedido'].to_list(),
+        'nome_cliente': results[3]['nome_cliente'].to_list(),
+        'status_pedido': results[4]['status_pedido'].to_list(),
+        'cidade': results[5]['cidade'].to_list(),
+        'nome_estado': results[6]['nome_estado'].to_list(),
+        'sigla_3': results[7]['sigla_3'].to_list(),
+        'motivo_venda': results[8]['motivo_venda'].to_list()
+    }
 
 def write_title(value: str, options: list):
     if value is None:

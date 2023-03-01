@@ -1,18 +1,14 @@
-from dash import dcc, html, callback, Input, Output
-from .Dropdown import Dropdown
+from dash import callback, Input, Output
+from .GraphWithDropdownFilter import GraphWithDropdownFilter
 from services import DatavisService
 from utils import numero_pedidos_por_dimensao, write_title, colors
 from typing import List
 
 def PedidosAgregadosGraph(options: List[dict]):
-    return html.Div(children=[
-        dcc.Graph(id='pedidos_agregados'),
-        html.Div(
-            Dropdown('pedidos_agregados_dimensao', options),
-            style={'width': '100%'}
-        )
-    ],
-    style={'marginTop': '100px', 'width': '50%'})
+    return GraphWithDropdownFilter(
+        graph_id='pedidos_agregados',
+        dropdown_id='pedidos_agregados_dimensao',
+        options=options)
 
 
 @callback(

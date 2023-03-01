@@ -1,14 +1,12 @@
-from dash import dcc, html, callback, Input, Output
-from .Dropdown import Dropdown
-from .GraphWithDropdownFilter import GraphWithDropdownFilter
+from dash import dcc, html
 from services import DatavisService
-from utils import quantidade_comprada_serie_temporal, write_title, colors
-from typing import List
+from utils import numero_pedidos_serie_temporal, colors
 
 def PedidosTemporalGraph():
     datavisService = DatavisService()
-    datavisService.get_data(quantidade_comprada_serie_temporal())
+    datavisService.get_data(numero_pedidos_serie_temporal())
     figure = datavisService.make_time_serie_graph('Número de pedidos - Análise temporal', colors)
+    
     return html.Div(children=[
         dcc.Graph(figure=figure, id='pedidos_temporal')
     ], 

@@ -5,46 +5,13 @@ from services import DatavisService
 from utils import pedidos_totais_filtrados, quantidade_total_filtrado, total_negociado_filtrado, colors
 from typing import List
 
-def MetricasTotaisFiltrados():
+def MetricasTotaisFiltrados(dimensoes: dict):
     optionsDataService = DatavisService()
-
-    nome_produto = optionsDataService.get_data(
-        'SELECT DISTINCT nome_produto FROM `dbt_adventure_works.vendas`'
-    )['nome_produto'].to_list()
-
-    tipo_cartao = optionsDataService.get_data(
-        'SELECT DISTINCT tipo_cartao FROM `dbt_adventure_works.vendas`'
-    )['tipo_cartao'].to_list()
-
-    data_pedido = optionsDataService.get_data(
-        'SELECT DISTINCT data_pedido FROM `dbt_adventure_works.vendas` ORDER BY data_pedido DESC'
-    )['data_pedido'].to_list()
-
-    nome_cliente = optionsDataService.get_data(
-        'SELECT DISTINCT nome_cliente FROM `dbt_adventure_works.vendas`'
-    )['nome_cliente'].to_list()
-
-    status_pedido = optionsDataService.get_data(
-        'SELECT DISTINCT status_pedido FROM `dbt_adventure_works.vendas`'
-    )['status_pedido'].to_list()
-    
-    cidade = optionsDataService.get_data(
-        'SELECT DISTINCT cidade FROM `dbt_adventure_works.vendas`'
-    )['cidade'].to_list()
-    
-    nome_estado = optionsDataService.get_data(
-        'SELECT DISTINCT nome_estado FROM `dbt_adventure_works.vendas`'
-    )['nome_estado'].to_list()
-
-    sigla_3 = optionsDataService.get_data(
-        'SELECT DISTINCT sigla_3 FROM `dbt_adventure_works.vendas`'
-    )['sigla_3'].to_list()
-
 
     return html.Div(children=[
         html.Div([
             MetricasCard(title='Pedidos Totais', id='pedidos_totais'),
-            MetricasCard(title='Quantidade Comprada Total', id='quantidade_total'),
+            MetricasCard(title='Quantidade Total Comprada', id='quantidade_total'),
             MetricasCard(title='Valor Total Negociado', id='valor_total')
         ],
         style={
@@ -54,35 +21,35 @@ def MetricasTotaisFiltrados():
         }),
         html.Div([
             html.Div(
-                Dropdown('totais_produto', [{'name': item, 'value': item} for item in nome_produto], placeholder='Produto'),
+                Dropdown('totais_produto', [{'name': item, 'value': item} for item in dimensoes['nome_produto']], placeholder='Produto'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_tipo_cartao', [{'name': item, 'value': item} for item in tipo_cartao], placeholder='Tipo de Cartão'),
+                Dropdown('totais_tipo_cartao', [{'name': item, 'value': item} for item in dimensoes['tipo_cartao']], placeholder='Tipo de Cartão'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_data_pedido', [{'name': item, 'value': item} for item in data_pedido], placeholder='Data do Pedido'),
+                Dropdown('totais_data_pedido', [{'name': item, 'value': item} for item in dimensoes['data_pedido']], placeholder='Data do Pedido'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_nome_cliente', [{'name': item, 'value': item} for item in nome_cliente], placeholder='Cliente'),
+                Dropdown('totais_nome_cliente', [{'name': item, 'value': item} for item in dimensoes['nome_cliente']], placeholder='Cliente'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_status_pedido', [{'name': item, 'value': item} for item in status_pedido], placeholder='Status do Pedido'),
+                Dropdown('totais_status_pedido', [{'name': item, 'value': item} for item in dimensoes['status_pedido']], placeholder='Status do Pedido'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_cidade', [{'name': item, 'value': item} for item in cidade], placeholder='Cidade'),
+                Dropdown('totais_cidade', [{'name': item, 'value': item} for item in dimensoes['cidade']], placeholder='Cidade'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_nome_estado', [{'name': item, 'value': item} for item in nome_estado], placeholder='Estado'),
+                Dropdown('totais_nome_estado', [{'name': item, 'value': item} for item in dimensoes['nome_estado']], placeholder='Estado'),
                 style={'width': '100%'}
             ),
             html.Div(
-                Dropdown('totais_sigla_3', [{'name': item, 'value': item} for item in sigla_3], placeholder='País'),
+                Dropdown('totais_sigla_3', [{'name': item, 'value': item} for item in dimensoes['sigla_3']], placeholder='País'),
                 style={'width': '100%'}
             )
         ], 

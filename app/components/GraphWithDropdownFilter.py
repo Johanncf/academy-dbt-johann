@@ -7,7 +7,7 @@ def GraphWithDropdownFilter(graph_id: str, dropdown_id: str, options: List[dict]
         dcc.Graph(id=graph_id),
         html.Div(
             Dropdown(dropdown_id, options),
-            style={'width': '100%', 'marginTop': '20px'}
+            style={'width': '100%'}
         )
     ],
     style={'backgroundColor': 'black', 'marginTop': '100px', 'width': '50%'})

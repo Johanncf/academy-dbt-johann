@@ -66,5 +66,6 @@ class DatavisService():
             paper_bgcolor=style_dict['dark-bg-0'],
             font_color=style_dict['dark-bg-txt'],
         )
+        fig.update_xaxes(showgrid=False)
         return fig
       
