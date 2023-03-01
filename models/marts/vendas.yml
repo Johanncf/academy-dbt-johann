@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: vendas
+    description: Tabela analítica de vendas. Cada linha possui informações para um item de um pedido, como quantidade, cartão utilizado, infos do cliente, data e endereço completo.
+    columns:
+      - name: pedido_id
+        description: Id do pedido. Existem linhas repetidas, uma vez que cada linha traz infos de um item do pedido.
+        tests:
+          - relationships:
+              to: ref('int_vendas__detalhe_pedidos')
+              field: pedido_id
+
+      - name: total_pedido
+        description: Total do pedido. Se refere ao pedido como um todo, e não ao total gasto no produto que a linha detalha. Logo, este valor pode se repetir ao longo da tabela.
+
+      - name: status_pedido
+        description: Status do pedido.
+
+      - name: data_pedido
+        description: Data completa do pedido (YYYY/MM/DD).
+
+      - name: ano_pedido
+        description: Ano do pedido.
+
+      - name: mes_pedido
+        description: Mês do pedido.
+
+      - name: dia_pedido
+        description: Dia do pedido.
+
+      - name: cliente_id
+        description: Id do cliente.
+        tests:
+          - relationships:
+              to: ref('int_vendas__clientes')
+              field: cliente_id
+
+      - name: nome_cliente
+        description: Nome da pessoa física que efetuou o pedido.
+
+      - name: nome_loja
+        description: Nome da pessoa jurídica contratante.
+
+      - name: detalhe_pedido_id
+        description: Id do detalhe do pedido.
+        tests:
+          - relationships:
+              to: ref('int_vendas__detalhe_pedidos')
+              field: detalhe_pedido_id
+
+      - name: preco_unitario
+        description: Valor unitário do pedido detalhado na linha.
+
+      - name: desconto_unitario
+        description: Desconto aplicado à cada unidade do produto detalhado da linha.
+
+      - name: produto_id
+        description: Id do produto.
+        tests:
+          - relationships:
+              to: ref('stg_sap__produtos')
+              field: produto_id
+
+      - name: nome_produto
+        description: Nome completo do produto.
+
+      - name: quantidade
+        decription: Número de unidades compradas do produto detalhado na linha.
+
+      - name: tipo_cartao
+        description: Tipo de cartão usado para o pagamento do pedido.
+
+      - name: cidade
+        description: Cidade para onde o pedido foi enviado.
+
+      - name: nome_estado
+        description: Estado para onde o pedido foi enviado.
+
+      - name: sigla_estado
+        description: Sigla do estado para onde o pedido foi enviado.
+
+      - name: nome_regiao
+        description: Região do mundo ou dos EUA para onde o pedido foi enviado.
+
+      - name: sigla_3
+        description: Código do país no padrão ISO 3166-1 alpha-3.
+
+      - name: motivo_venda
+        description: Motivador da compra. Um mesmo pedido pode ter vários motivadores.
